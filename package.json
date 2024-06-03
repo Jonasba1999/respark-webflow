@@ -1,0 +1,19 @@
+{
+  "name": "respark",
+  "version": "1.0.0",
+  "description": "JS code for respark website",
+  "main": "index.js",
+  "scripts": {
+    "build": "esbuild src/index.js --bundle --outfile=dist/bundle.js --minify --sourcemap"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "gsap": "^3.12.5",
+    "lenis": "^1.1.1",
+    "swiper": "^11.1.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.21.4"
+  }
+}
