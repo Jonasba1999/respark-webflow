@@ -2,7 +2,7 @@ import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Swiper from "swiper/bundle";
-import "swiper/css/bundle";
+import "swiper/css";
 
 // Custom last project item to view mouseenter
 const appendMoreProjects = function () {
@@ -602,9 +602,11 @@ const menuAnimation = function () {
 		hamburgerWrap.classList.toggle("is-active");
 
 		if (hamburgerWrap.classList.contains("is-active")) {
+			lenis.stop();
 			menuTl.restart();
 			linksTl.restart();
 		} else {
+			lenis.start();
 			menuTl.reverse();
 		}
 	};
