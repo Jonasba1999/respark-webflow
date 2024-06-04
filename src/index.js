@@ -197,6 +197,8 @@ const contactPageSlider = function () {
 		loop: false,
 		speed: 0,
 		slidesPerView: 1,
+		allowTouchMove: false,
+		effect: "slide",
 	});
 
 	if (document.querySelector(".contact-swiper")) {
