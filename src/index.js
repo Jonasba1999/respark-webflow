@@ -197,10 +197,6 @@ const contactPageSlider = function () {
 		loop: false,
 		speed: 0,
 		slidesPerView: 1,
-		effect: "fade",
-		fadeEffect: {
-			crossFade: true,
-		},
 	});
 
 	if (document.querySelector(".contact-swiper")) {
