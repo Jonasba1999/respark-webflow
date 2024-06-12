@@ -648,6 +648,58 @@ const imageParallaxAnimation = function () {
 	});
 };
 
+const movingServiceImage = function () {
+	const servicesWrap = document.querySelector(".home-services_list-wrap");
+	if (!servicesWrap || window.innerWidth <= 991) return;
+
+	console.log("Running moving service image function");
+	// Variables
+	const imagesGrid = document.querySelector(".home-services_image-row");
+	const imagesContainer = document.querySelector(".home-services_image-container");
+	const imagesWrap = document.querySelector(".home-services_image-wrap");
+
+	servicesWrap.addEventListener("mouseenter", () => {
+		gsap.to(imagesContainer, {
+			opacity: 1,
+			duration: 0.3,
+		});
+	});
+	servicesWrap.addEventListener("mouseleave", () => {
+		gsap.to(imagesContainer, {
+			opacity: 0,
+			duration: 0.3,
+		});
+	});
+
+	const setImagePosition = function (imagePosition) {
+		const imageDestination = imagePosition + 32;
+		gsap.to(imagesGrid, {
+			top: imageDestination + "px",
+			duration: 0.5,
+		});
+	};
+
+	const changeImage = function (index) {
+		const imageWrapPosition = `-${index * 25}%`;
+		gsap.to(imagesWrap, {
+			y: imageWrapPosition,
+			duration: 0.5,
+		});
+	};
+
+	const serviceRows = document.querySelectorAll(".services_row");
+	serviceRows.forEach((serviceRow, index) => {
+		const imagePoint = serviceRow.querySelector(".home-services_image-point");
+		const imagePointPosition = imagePoint.offsetTop;
+		console.log(imagePointPosition);
+
+		serviceRow.addEventListener("mouseenter", () => {
+			setImagePosition(imagePointPosition);
+			changeImage(index);
+		});
+	});
+};
+
 // Initializing all animations when DOM is loaded
 const initFunctions = function () {
 	gsap.registerPlugin(ScrollTrigger);
@@ -667,6 +719,7 @@ const initFunctions = function () {
 	menuAnimation();
 	pageTransitionEffect();
 	imageParallaxAnimation();
+	movingServiceImage();
 };
 
 document.addEventListener("DOMContentLoaded", initFunctions);
