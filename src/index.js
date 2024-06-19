@@ -325,7 +325,12 @@ const pageTransitionEffect = function () {
 	const transitionLogo = document.querySelector(".transition_logo");
 
 	// Transition OUT
-	const tlTransitionOut = gsap.timeline();
+	const tlTransitionOut = gsap.timeline({
+		paused: true,
+		onComplete: function () {
+			transitionWrap.style.display = "none";
+		},
+	});
 
 	// 1. Transition out logo
 	tlTransitionOut.to(transitionLogo, {
@@ -342,52 +347,62 @@ const pageTransitionEffect = function () {
 			y: "-100%",
 			ease: "power2.inOut",
 			stagger: 0.1,
-			onComplete: function () {
-				// Set display: none after the animation
-				transitionWrap.style.display = "none";
-			},
 		},
 		"0.3"
 	);
 
 	// Transition IN
+	const tlTransitionIn = gsap.timeline({
+		paused: true,
+		onStart: function () {
+			transitionWrap.style.display = "flex";
+		},
+	});
+
+	// 1. Transition in column items
+	tlTransitionIn.to(transitionItem, {
+		y: "0%",
+		duration: 0.6,
+		stagger: 0.1,
+		ease: "power2.inOut",
+	});
+
+	// 2. Transition in logo
+	tlTransitionIn.to(
+		transitionLogo,
+		{
+			y: "0%",
+			duration: 0.6,
+			ease: "power2.inOut",
+		},
+		"0.4"
+	);
+
 	const allLinks = document.querySelectorAll("a");
 	allLinks.forEach((link) => {
 		link.addEventListener("click", function (e) {
 			if (link.classList.contains("no-transition")) return;
 			e.preventDefault();
 			const href = link.getAttribute("href");
-			transitionIn(href);
+			history.pushState(null, "", href);
+			transitionOutAndIn(href);
 		});
 	});
 
-	const transitionIn = function (href) {
-		const tlTransitionIn = gsap.timeline();
-		// 1. Set wraper display: flex
-		transitionWrap.style.display = "flex";
-
-		// 2. Transition in column items
-		tlTransitionIn.to(transitionItem, {
-			y: "0%",
-			duration: 0.6,
-			stagger: 0.1,
-			ease: "power2.inOut",
+	const transitionOutAndIn = function (href) {
+		// Transition out
+		tlTransitionOut.restart().then(() => {
+			// Change the page content after the transition out
+			window.location.href = href;
 		});
-
-		// 3. Transition in logo
-		tlTransitionIn.to(
-			transitionLogo,
-			{
-				y: "0%",
-				duration: 0.6,
-				ease: "power2.inOut",
-				onComplete: function () {
-					window.location.href = href;
-				},
-			},
-			"0.4"
-		);
 	};
+
+	const handlePopState = function () {
+		// Transition in effect
+		tlTransitionIn.restart();
+	};
+
+	window.addEventListener("popstate", handlePopState);
 };
 
 // Custom cursor
@@ -630,11 +645,9 @@ const menuAnimation = function () {
 const imageParallaxAnimation = function () {
 	const parallaxWrap = document.querySelectorAll(".parallax-wrap");
 	if (parallaxWrap.length === 0) return;
-	console.log(parallaxWrap);
 
 	parallaxWrap.forEach((wrap) => {
 		const parallaxImage = wrap.querySelector(".parallax-image");
-		console.log(parallaxImage);
 		gsap.to(parallaxImage, {
 			scrollTrigger: {
 				trigger: wrap,
@@ -652,7 +665,6 @@ const movingServiceImage = function () {
 	const servicesWrap = document.querySelector(".home-services_list-wrap");
 	if (!servicesWrap || window.innerWidth <= 991) return;
 
-	console.log("Running moving service image function");
 	// Variables
 	const imagesGrid = document.querySelector(".home-services_image-row");
 	const imagesContainer = document.querySelector(".home-services_image-container");
@@ -691,7 +703,6 @@ const movingServiceImage = function () {
 	serviceRows.forEach((serviceRow, index) => {
 		const imagePoint = serviceRow.querySelector(".home-services_image-point");
 		const imagePointPosition = imagePoint.offsetTop;
-		console.log(imagePointPosition);
 
 		serviceRow.addEventListener("mouseenter", () => {
 			setImagePosition(imagePointPosition);
