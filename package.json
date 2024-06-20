@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@barba/core": "^2.10.0",
     "gsap": "^3.12.5",
     "lenis": "^1.1.1",
     "swiper": "^11.1.4"

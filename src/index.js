@@ -3,6 +3,9 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Swiper from "swiper/bundle";
 import "swiper/css";
+import barba from "@barba/core";
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Custom last project item to view mouseenter
 const appendMoreProjects = function () {
@@ -324,22 +327,39 @@ const pageTransitionEffect = function () {
 	const transitionItem = document.querySelectorAll(".transition_item");
 	const transitionLogo = document.querySelector(".transition_logo");
 
-	// Transition OUT
-	const tlTransitionOut = gsap.timeline({
-		paused: true,
-		onComplete: function () {
-			transitionWrap.style.display = "none";
-		},
+	barba.hooks.after(() => {
+		lenis.scrollTo(0, { immediate: true, force: true });
 	});
 
-	// 1. Transition out logo
+	barba.init({
+		transitions: [
+			{
+				name: "page-transition",
+				once() {
+					tlTransitionOut.restart();
+				},
+				async leave() {
+					await tlTransitionIn.restart();
+				},
+				enter() {
+					tlTransitionOut.restart();
+				},
+				after() {
+					initFunctions();
+				},
+			},
+		],
+	});
+
+	// Transition OUT timeline
+	const tlTransitionOut = gsap.timeline({ paused: true });
+
 	tlTransitionOut.to(transitionLogo, {
 		duration: 0.6,
 		y: "100%",
 		ease: "power2.inOut",
 	});
 
-	// 2. Transition out column items
 	tlTransitionOut.to(
 		transitionItem,
 		{
@@ -347,19 +367,20 @@ const pageTransitionEffect = function () {
 			y: "-100%",
 			ease: "power2.inOut",
 			stagger: 0.1,
+			onComplete: function () {
+				// Set display: none after the animation
+				transitionWrap.style.display = "none";
+			},
 		},
 		"0.3"
 	);
 
-	// Transition IN
+	// Transiiton IN timeline
 	const tlTransitionIn = gsap.timeline({
 		paused: true,
-		onStart: function () {
-			transitionWrap.style.display = "flex";
-		},
 	});
+	tlTransitionIn.set(transitionWrap, { display: "flex" });
 
-	// 1. Transition in column items
 	tlTransitionIn.to(transitionItem, {
 		y: "0%",
 		duration: 0.6,
@@ -367,7 +388,6 @@ const pageTransitionEffect = function () {
 		ease: "power2.inOut",
 	});
 
-	// 2. Transition in logo
 	tlTransitionIn.to(
 		transitionLogo,
 		{
@@ -377,32 +397,6 @@ const pageTransitionEffect = function () {
 		},
 		"0.4"
 	);
-
-	const allLinks = document.querySelectorAll("a");
-	allLinks.forEach((link) => {
-		link.addEventListener("click", function (e) {
-			if (link.classList.contains("no-transition")) return;
-			e.preventDefault();
-			const href = link.getAttribute("href");
-			history.pushState(null, "", href);
-			transitionOutAndIn(href);
-		});
-	});
-
-	const transitionOutAndIn = function (href) {
-		// Transition out
-		tlTransitionOut.restart().then(() => {
-			// Change the page content after the transition out
-			window.location.href = href;
-		});
-	};
-
-	const handlePopState = function () {
-		// Transition in effect
-		tlTransitionIn.restart();
-	};
-
-	window.addEventListener("popstate", handlePopState);
 };
 
 // Custom cursor
@@ -615,11 +609,9 @@ const menuAnimation = function () {
 		hamburgerWrap.classList.toggle("is-active");
 
 		if (hamburgerWrap.classList.contains("is-active")) {
-			lenis.stop();
 			menuTl.restart();
 			linksTl.restart();
 		} else {
-			lenis.start();
 			menuTl.reverse();
 		}
 	};
@@ -664,7 +656,6 @@ const imageParallaxAnimation = function () {
 const movingServiceImage = function () {
 	const servicesWrap = document.querySelector(".home-services_list-wrap");
 	if (!servicesWrap || window.innerWidth <= 991) return;
-
 	// Variables
 	const imagesGrid = document.querySelector(".home-services_image-row");
 	const imagesContainer = document.querySelector(".home-services_image-container");
@@ -713,8 +704,9 @@ const movingServiceImage = function () {
 
 // Initializing all animations when DOM is loaded
 const initFunctions = function () {
-	gsap.registerPlugin(ScrollTrigger);
 	ScrollTrigger.refresh();
+	customCursor();
+	smoothScroll();
 	appendMoreProjects();
 	testimonialSwiperFunction();
 	greenLightAnimation();
@@ -724,13 +716,13 @@ const initFunctions = function () {
 	contactPageSlider();
 	projectFullWidthImageAnimation();
 	projectFinalImageAnimation();
-	customCursor();
-	smoothScroll();
 	homeHeroAnimation();
 	menuAnimation();
-	pageTransitionEffect();
 	imageParallaxAnimation();
 	movingServiceImage();
 };
 
-document.addEventListener("DOMContentLoaded", initFunctions);
+document.addEventListener("DOMContentLoaded", () => {
+	pageTransitionEffect();
+	initFunctions();
+});
